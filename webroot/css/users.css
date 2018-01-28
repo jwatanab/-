@@ -1,0 +1,112 @@
+/* Init */
+
+html, body {
+    color: #636b6f;
+    font-family: 'Raleway', sans-serif;
+    font-weight: 200;
+    padding: 0;
+    margin: 0;
+}
+
+a {
+    color: rgb(0, 0, 0);
+    text-decoration: none;
+    transition: .3s;
+}
+
+a:hover {
+    background-color: rgb(94, 184, 187);
+}
+
+/*  Cake  */
+
+.container .auchor {
+    background-color: inherit;
+    opacity: 0.5;
+    font-weight: 100;
+}
+
+/*  Container  */
+
+.container {
+    width: 1170px;
+    margin: 0 auto;
+    padding:0 15px;
+    font-size: 1.4em;
+}
+
+/*  Modal  */
+
+#modal_bg {
+    position: fixed;
+    display: none;
+    z-index: 1;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+}
+
+#modal_window {
+    position: absolute;
+    display: none;
+    z-index: 1;
+    font-size: 1.4em;
+    background-color: rgb(255,255,255);
+    padding: 20px 40px;
+    box-shadow: 1px 1px 1px 1px 3px rgb(0,0,0);
+    border-radius: 5px;
+}
+
+/*  Header  */
+
+.container .header_content {
+    margin: 0 auto;
+    padding: 40px 0 70px;
+}
+
+.container .header_content .header_title {
+    font-size: 3em;
+}
+
+/*  User Content */
+
+.container .user_content {
+    display: flex;
+    flex-wrap: wrap;
+    background-color: rgba(1,1,1,0.1);
+    padding: 60px 80px;
+}
+
+.container .user_content .user {
+    padding: 0 20px;
+    transition: .3s;
+}
+
+.container .user_content .user:hover {
+    color: rgb(94, 184, 187);
+}
+
+.container .user_content .user a{
+    font-family: 'Yu Gothic';
+    font-weight: 200;
+    background-color: inherit;    
+}
+
+/*  execute  */
+
+.container .confirm .confirm_user {
+    font-size: 1.8em;
+}
+
+.container .confirm .execute {
+    font-size: 2em;
+}
+
+.container .confirm .execute em {
+    display: flex;    
+}
+
+.container .confirm .execute .exe {
+    padding: 50px;
+    margin: 0 auto;    
+}
