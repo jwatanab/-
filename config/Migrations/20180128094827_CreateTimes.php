@@ -13,6 +13,11 @@ class CreateTimes extends AbstractMigration
     public function change()
     {
         $table = $this->table('times');
+        $table->addColumn('user_id', 'string',[
+            'default' => null,
+            'limit' => 255,
+            'null' => false
+        ]);
         $table->addColumn('time', 'string', [
             'default' => null,
             'limit' => 255,

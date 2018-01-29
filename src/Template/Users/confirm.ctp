@@ -15,7 +15,7 @@
                     <?= $this->Html->link(
                             __('出勤'),
                             ['action' => 'execute', $user->id],
-                            ['class' => 'auchor exe']                                                
+                            ['class' => 'auchor exe']
                         ) ?>
                     <?= $this->Html->link(
                             __('退勤'),
@@ -28,4 +28,4 @@
     </div>
 </div>
 
-<?= var_dump($user) ?>
+<?php if($user->state) echo 'success' ?>

@@ -13,7 +13,7 @@ class CreateSessions extends AbstractMigration
     public function change()
     {
         $table = $this->table('sessions');
-        $table->addColumn('user_id', 'string', [
+        $table->addColumn('user_id', 'integer', [
             'default' => null,
             'limit' => 255,
             'null' => false,
@@ -28,7 +28,7 @@ class CreateSessions extends AbstractMigration
             'limit' => 255,
             'null' => false,
         ]);
-        $table->addColumn('session_id', 'string', [
+        $table->addColumn('session_id', 'integer', [
             'default' => null,
             'limit' => 255,
             'null' => false,

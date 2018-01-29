@@ -18,12 +18,8 @@
     <?= $this->Form->create($user) ?>
     <fieldset>
         <legend><?= __('Add User') ?></legend>
-        <?php
-            echo $this->Form->control('user_id');
-            echo $this->Form->control('name');
-            echo $this->Form->control('state');
-            echo $this->Form->control('session_id');
-        ?>
+        <input type="text" name="user_id" /><br />
+        <input type="text" name="name">
     </fieldset>
     <?= $this->Form->button(__('Submit')) ?>
     <?= $this->Form->end() ?>

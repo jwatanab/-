@@ -1,8 +1,10 @@
 <?php
+
 namespace App\Controller;
 
 use App\Controller\AppController;
 use Cake\ORM\TableRegistry;
+use Cake\I18n\Time;
 
 /**
  * Users Controller
@@ -50,7 +52,7 @@ class UsersController extends AppController
     public function viewContent()
     {
         $users = $this->paginate($this->Users);
-
+        
         $this->set(compact('users'));
     }
 
@@ -66,12 +68,13 @@ class UsersController extends AppController
             $user = $this->Users->patchEntity($user, $this->request->getData());
             if ($this->Users->save($user)) {
                 $this->Flash->success(__('The user has been saved.'));
-
-                return $this->redirect(['action' => 'index']);
+                debug($this->request->getData());
+                $this->set(compact('user'));
             }
-            $this->Flash->error(__('The user could not be saved. Please, try again.'));
+                $this->Flash->error(__('The user could not be saved. Please, try again.'));
         }
-        $this->set(compact('user'));
+    debug($this->request->getData());        
+    $this->set(compact('user'));
     }
 
     public function confirm($id = null)
@@ -108,24 +111,85 @@ class UsersController extends AppController
     }
 
     public function execute($id = null){
+
+        // ユーザー
         $user = $this->Users->get($id, ['contain' => []]);
-        if($user->state){
+        if ($user->state){
+
+            // -----------------
+            //　処理
+            // -----------------
+
+            $n = new Time();
+
+            $sessions = TableRegistry::get('Sessions')->find()->where(['session_id' => $user->session_id]);
+            $interval = $n->diff($sessions->time);
+
+            // -----------------
+            // Timeテーブルにインサート
+            // -----------------
+
+            $times = TableRegistry::get('Times');
+            $time = $times->newEntity();
+
+            $time->time = $interval->h.':'.$interval->i;
+            $time->sum = $time->sum + $interval->h;
             
-            // Users
 
-            // rand()をsession_idにセット
-            // stateを有力値に変更
+            // -----------------
+            // 初期化
+            // -----------------
 
-            // Session
+            $ins = [
+                'id' => $user->id,
+                'user_id' => $user->user_id,
+                'name' => $user->name,
+                'state' => 0,
+                'session_id' => null
+            ];
+                
+            $user = $this->Users->patchEntity($user, $ins);
+        
+            // -----------------
+            // リダイレクト
+            // -----------------
 
-            // SessionされたUser情報
+            if ($this->Users->save($user) && $times->save($time)) $this->redirect(['action' => 'index']);
 
-            // User name state? time:情報をインサート
         } else {
+            
+        $session_id = rand();
 
-        }
+        // User index
+            
+        $ins = [
+            'id' => $user->id,
+            'user_id' => $user->user_id,
+            'name' => '渡邊 純名',
+            'state' => 1,
+            'session_id' => $session_id,
+        ];
+
+        $user = $this->Users->patchEntity($user, $ins);
+
+        // Session index
+
+        $sessions = TableRegistry::get('Sessions');
+        $session = $sessions->newEntity();
+
+        $session->id = $id;
+        $session->user_id = $user->user_id;
+        $session->name = $user->name;
+        $session->session_id = $session_id;
+        $session->time = Time::now();
+        $sessions->save($session);
+
+
+        if ($this->Users->save($user) && $sessions->save($session)) $this->redirect(['action' => 'index']);
+        if ($user->errors()) var_dump($user->errors());
     }
-
+    
+}
     /**
      * Delete method
      *
