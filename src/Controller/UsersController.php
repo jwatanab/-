@@ -113,13 +113,23 @@ class UsersController extends AppController
 
     public function execute($id = null){
 
-        // ユーザー
+        // IDが送信されていない場合には何も返さない。
+
+        if(!$id) return;
+
+        // 送信されたユーザー
+
         $user = $this->Users->get($id, ['contain' => []]);
+
+        // 勤務開始していた場合
+
         if ($user->state){
 
             // -----------------
             //　処理
             // -----------------
+
+            // 勤務開始時に発行したSession_idを元に開始時刻を検索
 
             $sessions = TableRegistry::get('Sessions')
                                     ->find()
@@ -134,9 +144,16 @@ class UsersController extends AppController
             // Timeテーブルにインサート
             // -----------------
 
+            /**
+             * Sessionテーブルの特定の人物を検索するために
+             * User_idで検索をかけ取得したレコードの最後を取得
+             * レコードが存在しない場合には0に変換する
+             */
+
             $timeIns = TableRegistry::get('Times');
             $timeIns = $timeIns->find('all')->all();
             $timeIns = $timeIns->last();
+            $timeIns->sum = $timeIns->sum ? $timeIns->sum : 0;
 
             $result = [
                 'user_id' => $user->user_id,
@@ -165,41 +182,48 @@ class UsersController extends AppController
             // リダイレクト
             // -----------------
 
-            if ($this->Users->save($user)){
-                if($times->save($time)) $this->redirect(['action' => 'index']);
-            }
+            if ($this->Users->save($user) && $times->save($time)) $this->redirect(['action' => 'index']);
 
         } else {
-            
+
+            // -----------------
+            // セッションIDを発行
+            // -----------------
+
             $session_id = rand();
 
-            // User index
+            // ---------------------------------------------------
+            // 送信されたユーザーにStateとSession_idをインサート
+            // ---------------------------------------------------
                 
             $ins = [
                 'id' => $user->id,
                 'user_id' => $user->user_id,
-                'name' => '渡邊 純名',
+                'name' => $user->name,
                 'state' => 1,
                 'session_id' => $session_id,
             ];
 
             $user = $this->Users->patchEntity($user, $ins);
 
-            // Session index
+            /**
+             * Sessionテーブルにインサート、後からレコードを特定できるように
+             * ユーザのUser_idとSession_idをレコードにインサート
+             */
 
+            $sesIns = [
+                'id' => $id,
+                'user_id' => $user->user_id,
+                'name' => $user->name,
+                'session_id' => $session_id,
+                'time' => (new \Datetime(Time::now()))->format('Y-m-d H:i')
+            ];
+            
             $sessions = TableRegistry::get('Sessions');
-            $session = $sessions->newEntity();
-
-            $session->id = $id;
-            $session->user_id = $user->user_id;
-            $session->name = $user->name;
-            $session->session_id = $session_id;
-            $session->time = (new \Datetime(Time::now()))->format('Y-m-d H:i');
-            $sessions->save($session);
+            $session = $sessions->newEntity($sesIns);            
 
 
             if ($this->Users->save($user) && $sessions->save($session)) $this->redirect(['action' => 'index']);
-            if ($user->errors()) var_dump($user->errors());
     }
     
 }
