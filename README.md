@@ -5,6 +5,7 @@
 
     `リポジトリに初回PULL || PUSHするときに必要`
     git merge --allow-unrelated-histories
+    
 ```
 
 - PG
