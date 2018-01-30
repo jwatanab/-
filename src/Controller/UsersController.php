@@ -10,6 +10,7 @@ use Cake\I18n\Time;
  * Users Controller
  *
  * @property \App\Model\Table\UsersTable $Users
+ * @property \App\Model\Table\TimesTable $Times
  *
  * @method \App\Model\Entity\User[]|\Cake\Datasource\ResultSetInterface paginate($object = null, array $settings = [])
  */
@@ -120,21 +121,31 @@ class UsersController extends AppController
             //　処理
             // -----------------
 
-            $n = new Time();
+            $sessions = TableRegistry::get('Sessions')
+                                    ->find()
+                                    ->where(['session_id' => $user->session_id])
+                                    ->first();
 
-            $sessions = TableRegistry::get('Sessions')->find()->where(['session_id' => $user->session_id]);
-            $interval = $n->diff($sessions->time);
+            $n = new Time($sessions->time, 'Asia/Tokyo');
+            
+            $interval = $n->diff(Time::now());
 
             // -----------------
             // Timeテーブルにインサート
             // -----------------
 
-            $times = TableRegistry::get('Times');
-            $time = $times->newEntity();
+            $timeIns = TableRegistry::get('Times');
+            $timeIns = $timeIns->find('all')->all();
+            $timeIns = $timeIns->last();
 
-            $time->time = $interval->h.':'.$interval->i;
-            $time->sum = $time->sum + $interval->h;
-            
+            $result = [
+                'user_id' => $user->user_id,
+                'time' => $interval->h.':'.$interval->i,
+                'sum' => $timeIns->sum + $interval->h
+            ];
+
+            $times = TableRegistry::get('Times');
+            $time = $times->newEntity($result);
 
             // -----------------
             // 初期化
@@ -154,39 +165,41 @@ class UsersController extends AppController
             // リダイレクト
             // -----------------
 
-            if ($this->Users->save($user) && $times->save($time)) $this->redirect(['action' => 'index']);
+            if ($this->Users->save($user)){
+                if($times->save($time)) $this->redirect(['action' => 'index']);
+            }
 
         } else {
             
-        $session_id = rand();
+            $session_id = rand();
 
-        // User index
-            
-        $ins = [
-            'id' => $user->id,
-            'user_id' => $user->user_id,
-            'name' => '渡邊 純名',
-            'state' => 1,
-            'session_id' => $session_id,
-        ];
+            // User index
+                
+            $ins = [
+                'id' => $user->id,
+                'user_id' => $user->user_id,
+                'name' => '渡邊 純名',
+                'state' => 1,
+                'session_id' => $session_id,
+            ];
 
-        $user = $this->Users->patchEntity($user, $ins);
+            $user = $this->Users->patchEntity($user, $ins);
 
-        // Session index
+            // Session index
 
-        $sessions = TableRegistry::get('Sessions');
-        $session = $sessions->newEntity();
+            $sessions = TableRegistry::get('Sessions');
+            $session = $sessions->newEntity();
 
-        $session->id = $id;
-        $session->user_id = $user->user_id;
-        $session->name = $user->name;
-        $session->session_id = $session_id;
-        $session->time = Time::now();
-        $sessions->save($session);
+            $session->id = $id;
+            $session->user_id = $user->user_id;
+            $session->name = $user->name;
+            $session->session_id = $session_id;
+            $session->time = (new \Datetime(Time::now()))->format('Y-m-d H:i');
+            $sessions->save($session);
 
 
-        if ($this->Users->save($user) && $sessions->save($session)) $this->redirect(['action' => 'index']);
-        if ($user->errors()) var_dump($user->errors());
+            if ($this->Users->save($user) && $sessions->save($session)) $this->redirect(['action' => 'index']);
+            if ($user->errors()) var_dump($user->errors());
     }
     
 }
