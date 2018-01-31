@@ -19,8 +19,8 @@ class UsersSeed extends AbstractSeed
     public function run()
     {
         $data = [
-            'user_id' => '',
-            'name' => ''
+            'user_id' => '0',
+            'name' => '渡邊 純名'
         ];
 
         $table = $this->table('users');

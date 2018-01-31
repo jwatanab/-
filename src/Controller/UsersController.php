@@ -153,7 +153,7 @@ class UsersController extends AppController
             $timeIns = TableRegistry::get('Times');
             $timeIns = $timeIns->find('all')->all();
             $timeIns = $timeIns->last();
-            $timeIns->sum = $timeIns->sum ? $timeIns->sum : 0;
+            $timeIn = $timeIns ? $timeIns : 0;
 
             $result = [
                 'user_id' => $user->user_id,
